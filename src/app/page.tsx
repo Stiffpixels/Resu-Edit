@@ -1,20 +1,42 @@
+import { SelectFileCombo } from "~/components/home/SelectFileCombo";
 import { PlaceholderAndEditor } from "./PlaceholderAndEditor";
 import { ResuForm } from "./ResuForm";
 
-export default async function HomePage() {
-    let files: Promise<{ name?: string, url?: string }[]> = new Promise(resolve => resolve([]));
+export default async function HomePage({searchParams}:{searchParams:Record<string,string>}) {
+    const {id} =await searchParams;
+
+    let file: Promise<{ name?: string, url?: string }> = new Promise(resolve => resolve({}));
     try {
-        files = new Promise((resolve) => {
-            setTimeout(() => resolve([{ name: "Test", url: "https://3wfx0nos0c.ufs.sh/f/kjl5fEruWyI8QtIxHvgl3Mn70UZqhLaofQ1XzcwIv62xAOug" }]), 2000)
+        if(id)
+        file = new Promise((resolve) => {
+            setTimeout(() => resolve({ name: "Test", url: "https://3wfx0nos0c.ufs.sh/f/" + id}), 2000)
         })
     } catch (e) {
         console.log(e)
+        file = new Promise(resolve => resolve({}));
     }
     return (
         <>
-            <ResuForm fetchedFiles={files} />
-            <PlaceholderAndEditor />
+            <FileSelector />
+            <ResuForm />
+            <PlaceholderAndEditor fetchedFile={file} />
         </>
     );
 }
 
+async function FileSelector() {
+    let files: { name?: string, key?: string }[] = [];
+    try {
+        files = await new Promise((resolve) => {
+            resolve([{ name: "Test", key: "kjl5fEruWyI8QtIxHvgl3Mn70UZqhLaofQ1XzcwIv62xAOug" }])
+        })
+    } catch (e) {
+        console.log(e)
+    }
+
+    return (
+        <div className="max-w-xl mx-auto my-4">
+            <SelectFileCombo files={files} />
+        </div>
+    )
+}
