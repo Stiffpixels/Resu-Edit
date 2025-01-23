@@ -2,14 +2,14 @@ import { SelectFileCombo } from "~/components/home/SelectFileCombo";
 import { PlaceholderAndEditor } from "./PlaceholderAndEditor";
 import { ResuForm } from "./ResuForm";
 
-export default async function HomePage({searchParams}:{searchParams:Record<string,string>}) {
+export default async function HomePage({searchParams}:{searchParams:Promise<Record<string, string | string[] | undefined>>}) {
     const {id} =await searchParams;
 
-    let file: Promise<{ name?: string, url?: string }> = new Promise(resolve => resolve({}));
+    let file= new Promise<{name?:string, url?:string}>(resolve => resolve({}));
     try {
         if(id)
         file = new Promise((resolve) => {
-            setTimeout(() => resolve({ name: "Test", url: "https://3wfx0nos0c.ufs.sh/f/" + id}), 2000)
+            setTimeout(() => resolve({ name: "Test", url: `https://3wfx0nos0c.ufs.sh/f/` + id.toString().replace(" ", "_") }), 2000)
         })
     } catch (e) {
         console.log(e)

@@ -1,10 +1,10 @@
 "use client"
 import { Label } from "@radix-ui/react-label";
-import React, { Dispatch, SetStateAction, useActionState, useRef } from "react"
+import React, {type Dispatch, type SetStateAction, useActionState, useRef } from "react"
 import { PlaceholderCombo } from "~/components/home/PlaceholderCombo";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { placeholderSchema, PlaceholderType } from "./PlaceholderAndEditor";
+import { placeholderSchema,type PlaceholderType } from "./PlaceholderAndEditor";
 
 type PlaceholderState = {
     success: boolean
@@ -27,7 +27,7 @@ export function PlaceholderSelector({
 
         let type;
         if (typeElem.current) type = typeElem.current.textContent?.toLowerCase();
-        const { success: isValid, error, data } = placeholderSchema.safeParse({ name: name as string, type: type as string })
+        const { success: isValid, error, data } = placeholderSchema.safeParse({ name: name, type: type })
         if (isValid) {
             placeholdersAction([...placeholders, data])
             return { success: isValid, message: "" }
