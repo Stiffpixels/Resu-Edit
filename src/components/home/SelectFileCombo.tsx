@@ -19,11 +19,13 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "~/components/ui/popover"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export function SelectFileCombo({ files}: { files: { name?: string, key?: string }[]}) {
     const [open, setOpen] = React.useState(false)
     const router = useRouter()
+    const searchParams = useSearchParams()
+
     return (
         <div className="w-full">
             <Popover open={open} onOpenChange={setOpen}>
@@ -58,6 +60,7 @@ export function SelectFileCombo({ files}: { files: { name?: string, key?: string
                                         <Check
                                             className={cn(
                                                 "ml-auto",
+                                                searchParams.get("id")===files.key?"opacity-100":"opacity-0"
                                             )}
                                         />
                                     </CommandItem>

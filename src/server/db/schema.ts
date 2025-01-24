@@ -1,116 +1,68 @@
 import { relations, sql } from "drizzle-orm";
 import {
-  index,
-  int,
-  primaryKey,
-  sqliteTableCreator,
-  text,
+    index,
+    int,
+    primaryKey,
+    sqliteTableCreator,
+    text,
 } from "drizzle-orm/sqlite-core";
-import { type AdapterAccount } from "next-auth/adapters";
+import { nanoid } from "nanoid"
+export const createTable = sqliteTableCreator((name) => name);
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-export const createTable = sqliteTableCreator((name) => `resu_edit_${name}`);
+const genNanoid = () => nanoid(12)
 
-export const posts = createTable(
-  "post",
-  {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: text("name", { length: 256 }),
-    createdById: text("created_by", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: int("created_at", { mode: "timestamp" })
-      .default(sql`(unixepoch())`)
-      .notNull(),
-    updatedAt: int("updatedAt", { mode: "timestamp" }).$onUpdate(
-      () => new Date()
-    ),
-  },
-  (example) => ({
-    createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  })
+export const users = createTable(
+    "users",
+    {
+        id: text("id", { length: 12 }).$defaultFn(genNanoid),
+        name: text("name", { length: 255 }).notNull().unique(),
+        email: text("email", { length: 255 }).notNull().unique(),
+        filesId: text("files_id", { length: 12 }).$defaultFn(genNanoid),
+        createdAt: int("created_at", { mode: "timestamp" })
+            .default(sql`(unixepoch())`)
+            .notNull(),
+        updatedAt: int("updatedAt", { mode: "timestamp" }).$onUpdate(
+            () => new Date()
+        ),
+    },
+    (post) => ({
+        nameIndex: index("name_idx").on(post.name),
+    })
 );
 
-export const users = createTable("user", {
-  id: text("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: text("name", { length: 255 }),
-  email: text("email", { length: 255 }).notNull(),
-  emailVerified: int("email_verified", {
-    mode: "timestamp",
-  }).default(sql`(unixepoch())`),
-  image: text("image", { length: 255 }),
+export const files = createTable("files", {
+    id: text("id", { length: 12 })
+        .$defaultFn(genNanoid),
+    key: text("key", { length: 255 }),
+    url: text("url", { length: 255 }).notNull(),
+    placeholdersId: text("placeholders_id")
+}, (user) => {
+    return {
+        files_pk: primaryKey({ columns: [user.id, user.key] }),
+    }
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
+export const usersRelations = relations(files, ({ one }) => ({
+	author: one(users, {
+		fields: [files.id],
+		references: [users.filesId],
+	}),
 }));
 
-export const accounts = createTable(
-  "account",
-  {
-    userId: text("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    type: text("type", { length: 255 })
-      .$type<AdapterAccount["type"]>()
-      .notNull(),
-    provider: text("provider", { length: 255 }).notNull(),
-    providerAccountId: text("provider_account_id", { length: 255 }).notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: int("expires_at"),
-    token_type: text("token_type", { length: 255 }),
-    scope: text("scope", { length: 255 }),
-    id_token: text("id_token"),
-    session_state: text("session_state", { length: 255 }),
-  },
-  (account) => ({
-    compoundKey: primaryKey({
-      columns: [account.provider, account.providerAccountId],
-    }),
-    userIdIdx: index("account_user_id_idx").on(account.userId),
-  })
-);
+export const placeholders = createTable("placeholders", {
+    id: text("id", {length:12}).$defaultFn(genNanoid),
+    name:text("name", {length:255}),
+    type:text("type", {length:255}).notNull().unique(),
+},(placeholder)=>{
+    return {
+        placeholder_pk:primaryKey({columns:[placeholder.id, placeholder.name]})
+    }
+})
 
-export const accountsRelations = relations(accounts, ({ one }) => ({
-  user: one(users, { fields: [accounts.userId], references: [users.id] }),
+export const postsRelations = relations(placeholders, ({ one }) => ({
+	author: one(files, {
+		fields: [placeholders.id],
+		references: [files.placeholdersId],
+	}),
 }));
 
-export const sessions = createTable(
-  "session",
-  {
-    sessionToken: text("session_token", { length: 255 }).notNull().primaryKey(),
-    userId: text("userId", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    expires: int("expires", { mode: "timestamp" }).notNull(),
-  },
-  (session) => ({
-    userIdIdx: index("session_userId_idx").on(session.userId),
-  })
-);
-
-export const sessionsRelations = relations(sessions, ({ one }) => ({
-  user: one(users, { fields: [sessions.userId], references: [users.id] }),
-}));
-
-export const verificationTokens = createTable(
-  "verification_token",
-  {
-    identifier: text("identifier", { length: 255 }).notNull(),
-    token: text("token", { length: 255 }).notNull(),
-    expires: int("expires", { mode: "timestamp" }).notNull(),
-  },
-  (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
-);

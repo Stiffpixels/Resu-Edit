@@ -5,8 +5,9 @@ import { env } from "~/env";
 export default {
   schema: "./src/server/db/schema.ts",
   dialect: "sqlite",
+  driver:"turso",
   dbCredentials: {
     url: env.DATABASE_URL,
+    authToken: env.DB_AUTH_TOKEN
   },
-  tablesFilter: ["resu_edit_*"],
 } satisfies Config;

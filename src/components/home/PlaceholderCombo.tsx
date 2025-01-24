@@ -37,6 +37,7 @@ const types = [
 export function PlaceholderCombo({btnRef}:{btnRef:React.RefObject<HTMLButtonElement>}) {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("")
+
     return (
         <div className="w-full">
             <Popover open={open} onOpenChange={setOpen}>

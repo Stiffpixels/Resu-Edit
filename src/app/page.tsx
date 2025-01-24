@@ -1,15 +1,18 @@
 import { SelectFileCombo } from "~/components/home/SelectFileCombo";
 import { PlaceholderAndEditor } from "./PlaceholderAndEditor";
 import { ResuForm } from "./ResuForm";
+import { Suspense } from "react";
+import { Spinner } from "~/components/ui/spinner";
 
-export default async function HomePage({searchParams}:{searchParams:Promise<Record<string, string | string[] | undefined>>}) {
-    const {id} =await searchParams;
-
-    let file= new Promise<{name?:string, url?:string}>(resolve => resolve({}));
+export default function HomePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    let file = new Promise<{ name?: string, url?: string }>(resolve => resolve({}));
     try {
-        if(id)
-        file = new Promise((resolve) => {
-            setTimeout(() => resolve({ name: "Test", url: `https://3wfx0nos0c.ufs.sh/f/` + id.toString().replace(" ", "_") }), 2000)
+        file = searchParams.then(({ id }) => {
+            if(id)
+            return new Promise((resolve) => {
+                setTimeout(() => resolve({ name: "Test", url: `https://3wfx0nos0c.ufs.sh/f/` + id?.toString().replace(" ", "_") }), 2000)
+            })
+            return new Promise<{ name?: string, url?: string }>(resolve => resolve({}))
         })
     } catch (e) {
         console.log(e)
@@ -19,7 +22,9 @@ export default async function HomePage({searchParams}:{searchParams:Promise<Reco
         <>
             <FileSelector />
             <ResuForm />
-            <PlaceholderAndEditor fetchedFile={file} />
+            <Suspense fallback={<Spinner className="mt-4"/>}>
+                <PlaceholderAndEditor fetchedFile={file} />
+            </Suspense>
         </>
     );
 }

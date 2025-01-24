@@ -10,7 +10,6 @@ export const placeholderSchema = z.object({
 
 export type PlaceholderType = z.infer<typeof placeholderSchema>
 
-
 export function PlaceholderAndEditor({ fetchedFile }: { fetchedFile: Promise<{ name?: string, url?: string }> }) {
 
     const initFile = use(fetchedFile);
@@ -19,7 +18,7 @@ export function PlaceholderAndEditor({ fetchedFile }: { fetchedFile: Promise<{ n
         <>
             <PlaceholderSelector placeholders={placeholders} placeholdersAction={setPlaceholders} />
             <DocEditor placeholders={placeholders} />
-        </>:<div className="max-w-xl mx-auto text-center my-4 text-xl text-bold text-muted-foreground capitalize">no file selected</div>
+        </>:<div className="max-w-xl mx-auto text-center my-4 text-xs text-bold text-muted-foreground capitalize">no file selected</div>
 }
 
 function DocEditor({ placeholders }: { placeholders: PlaceholderType[] }) {
