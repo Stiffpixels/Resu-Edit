@@ -1,6 +1,6 @@
 import { SelectFileCombo } from "~/components/home/SelectFileCombo";
 import { PlaceholderAndEditor } from "./PlaceholderAndEditor";
-import { ResuForm } from "./ResuForm";
+import { FileUploader} from "./FileUploader";
 import { Suspense } from "react";
 import { Spinner } from "~/components/ui/spinner";
 
@@ -21,7 +21,7 @@ export default function HomePage({ searchParams }: { searchParams: Promise<Recor
     return (
         <>
             <FileSelector />
-            <ResuForm />
+            <FileUploader />
             <Suspense fallback={<Spinner className="mt-4"/>}>
                 <PlaceholderAndEditor fetchedFile={file} />
             </Suspense>

@@ -5,7 +5,6 @@ import DiscordProvider from "next-auth/providers/discord";
 import { db } from "~/server/db";
 import {
   accounts,
-  sessions,
   users,
   verificationTokens,
 } from "~/server/db/schema";
