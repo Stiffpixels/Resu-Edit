@@ -11,7 +11,6 @@ export const placeholderSchema = z.object({
 export type PlaceholderType = z.infer<typeof placeholderSchema>
 
 export function PlaceholderAndEditor({ fetchedFile }: { fetchedFile: Promise<{ name?: string, url?: string }> }) {
-
     const initFile = use(fetchedFile);
     const [placeholders, setPlaceholders] = useState<PlaceholderType[]>([])
     return initFile?.name?
